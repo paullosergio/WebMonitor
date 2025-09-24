@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 8080
 
 # Rodar o app via gunicorn (mais seguro que flask run)
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "main:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "main:app"]
