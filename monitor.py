@@ -7,8 +7,11 @@ import time
 from collections import deque
 from datetime import datetime
 
+# Configure logging
 import requests
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class BettingMonitor:
     def __init__(self):

@@ -2,11 +2,13 @@ import logging
 import os
 import threading
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template
 
 from monitor import BettingMonitor
 
 # Configure logging
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 # Create Flask app

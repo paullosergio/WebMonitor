@@ -1,0 +1,39 @@
+name: Fly Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy app to Fly.io
+    runs-on: ubuntu-latest
+    concurrency: deploy-group
+
+    steps:
+      # 1️⃣ Checkout do código
+      - uses: actions/checkout@v4
+
+      # 2️⃣ Configurar Fly CLI
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # 3️⃣ Configurar Python (para build local se necessário)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      # 4️⃣ Configurar variáveis de ambiente
+      - name: Set environment variables
+        run: |
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> $GITHUB_ENV
+          echo "CHAT_ID=${{ secrets.CHAT_ID }}" >> $GITHUB_ENV
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> $GITHUB_ENV
+
+      # 5️⃣ Build e deploy para Fly.io
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy --remote-only

@@ -1,0 +1,29 @@
+# flyctl launch added from .gitignore
+# Ambientes e caches
+**/.venv
+**/.local
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.pytest_cache
+**/.mypy_cache
+
+# Segredos/variáveis
+**/.env
+
+# Estado/artefatos de runtime
+**/notified_events.json
+**/logs
+**/*.log
+
+# IDE/Editor
+**/.vscode
+**/.idea
+
+# SO
+**/.DS_Store
+**/Thumbs.db
+
+**/attached_assets
+fly.toml
