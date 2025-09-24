@@ -26,12 +26,3 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      # 5️⃣ Deploy no Render via API
-      - name: Deploy to Render
-        env:
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
-        run: |
-          curl -X POST https://api.render.com/deploy/srv-d3a1ma6r433s73aktck0 \
-               -H "Accept: application/json" \
-               -H "Authorization: Bearer $RENDER_API_KEY"
