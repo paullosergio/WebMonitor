@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Create Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "default_secret_key")
+app.secret_key = os.environ.get("SESSION_SECRET")
 
 # Initialize the betting monitor
 monitor = BettingMonitor()

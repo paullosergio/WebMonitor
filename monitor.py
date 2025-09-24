@@ -17,8 +17,8 @@ class BettingMonitor:
         self.INTERVAL = 30  # seconds between requests
 
         # Telegram configuration from environment variables
-        self.BOT_TOKEN = os.getenv("BOT_TOKEN", "REMOVED_TOKEN")
-        self.CHAT_ID = os.getenv("CHAT_ID", "6729439292")
+        self.BOT_TOKEN = os.getenv("BOT_TOKEN")
+        self.CHAT_ID = os.getenv("CHAT_ID")
 
         # Regex pattern for identifying events
         self.pattern = re.compile(r"para ter menos de (\d+(\.\d+)?) gols na partida", re.IGNORECASE)
