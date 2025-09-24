@@ -234,8 +234,8 @@ class BettingMonitor:
                     f"⏰ Data/Hora: {date_str}\n"
                     f"⚽ Menos de {gols_esperados} gols na partida\n"
                     f"💰 Odd: *{odd_value}*\n"
-                    f"🆔 ID: {event['id']}"
-                    f"🔗 Link:https://betesporte.bet.br/sports/desktop/pre-match-detail/999/4200000001/{event['id']}"
+                    f"🆔 ID: {event['id']}\n"
+                    f"🔗 Link: https://betesporte.bet.br/sports/desktop/pre-match-detail/999/4200000001/{event['id']}"
                 )
 
                 # Send notification
