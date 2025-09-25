@@ -5,13 +5,14 @@ import re
 import threading
 import time
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 # Configure logging
 import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class BettingMonitor:
     def __init__(self):
@@ -48,7 +49,7 @@ class BettingMonitor:
         # Runtime variables
         self.running = False
         self.thread = None
-        self.notified_events = set()
+        self.notified_events = dict()
         self.recent_logs = deque(maxlen=100)  # Keep last 100 log entries
         self.stats = {
             "start_time": None,
@@ -66,27 +67,21 @@ class BettingMonitor:
         # Load previously notified events
         self.load_notified_events()
 
-    def load_notified_events(self):
-        """Load previously notified events from file"""
-        try:
-            if os.path.exists(self.LOG_FILE):
-                with open(self.LOG_FILE, "r") as f:
-                    self.notified_events = set(json.load(f))
-                self.log(f"Loaded {len(self.notified_events)} previously notified events")
-            else:
-                self.notified_events = set()
-                self.log("No previous events file found, starting fresh")
-        except Exception as e:
-            self.log(f"Error loading notified events: {e}", level="ERROR")
-            self.notified_events = set()
-
     def save_notified_events(self):
-        """Save notified events to file"""
+        """Save notified events with their odds to file"""
         try:
             with open(self.LOG_FILE, "w") as f:
-                json.dump(list(self.notified_events), f)
+                json.dump(self.notified_events, f)  # agora é dict
         except Exception as e:
             self.log(f"Error saving notified events: {e}", level="ERROR")
+
+    def load_notified_events(self):
+        """Load notified events with odds from file"""
+        try:
+            with open(self.LOG_FILE, "r") as f:
+                self.notified_events = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.notified_events = {}
 
     def send_telegram_message(self, message):
         """Send message to Telegram"""
@@ -219,28 +214,32 @@ class BettingMonitor:
                 # Find the odd value
                 odd_value = self.find_odd_value(event)
 
-                # Convert date to local timezone
-                try:
-                    date_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
-                    date_local = date_utc.astimezone()
-                    date_str = date_local.strftime("%d/%m/%Y %H:%M:%S")
-                except:
-                    date_str = event.get("date", "N/D")
+                # Verificar se já existe e se a odd mudou
+                previous_odd = self.notified_events.get(event["id"])
 
-                # Create message
-                message = (
-                    f"⚡ *Novo Evento Encontrado!*\n\n"
-                    f"🏟️ Evento: {home_team}\n"
-                    f"⏰ Data/Hora: {date_str}\n"
-                    f"⚽ Menos de {gols_esperados} gols na partida\n"
-                    f"💰 Odd: *{odd_value}*\n"
-                    f"🆔 ID: {event['id']}\n"
-                    f"🔗 Link: https://betesporte.bet.br/sports/desktop/pre-match-detail/999/4200000001/{event['id']}"
-                )
+                if previous_odd != odd_value:  # novo evento ou odd diferente
+                    try:
+                        date_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
+                        tz_brasil = timezone(timedelta(hours=-3))
+                        date_local = date_utc.astimezone(tz_brasil)
+                        date_str = date_local.strftime("%d/%m/%Y %H:%M:%S")
+                    except:
+                        date_str = event.get("date", "N/D")
+
+                    # Create message
+                    message = (
+                        f"⚡ *Novo Evento Encontrado!*\n\n"
+                        f"🏟️ Evento: {home_team}\n"
+                        f"⏰ Data/Hora: {date_str}\n"
+                        f"⚽ Menos de {gols_esperados} gols na partida\n"
+                        f"💰 Odd: *{odd_value}*\n"
+                        f"🆔 ID: {event['id']}\n"
+                        f"🔗 Link: https://betesporte.bet.br/sports/mobile/pre-match-detail/999/4200000001/{event['id']}"
+                    )
 
                 # Send notification
                 if self.send_telegram_message(message):
-                    self.notified_events.add(event["id"])
+                    self.notified_events[event["id"]] = odd_value
                     self.save_notified_events()
                     self.log(f"New event notification sent: {event['id']}")
                     return True
