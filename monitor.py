@@ -18,7 +18,7 @@ class BettingMonitor:
     def __init__(self):
         # Configuration
         self.URL = "https://betesporte.bet.br/api/PreMatch/GetEvents?sportId=999&tournamentId=4200000001"
-        self.INTERVAL = 30  # seconds between requests
+        self.INTERVAL = 5  # seconds between requests
 
         # Telegram configuration from environment variables
         self.BOT_TOKEN = os.getenv("BOT_TOKEN")
